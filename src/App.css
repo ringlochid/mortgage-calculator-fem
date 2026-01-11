@@ -1,21 +1,25 @@
-#root {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
-}
-
 main {
     display: flex;
+    width: 100svw;
     max-width: 63rem;
     flex-direction: column;
     align-items: flex-start;
-    align-self: stretch;
     background: var(--color-white, #FFF);
+
+    @media (width >=768px) {
+        width: 89.5svw;
+        border-radius: 1.5rem;
+        box-shadow: 0 32px 64px 0 rgba(19, 48, 65, 0.10);
+    }
+
+    @media (width >=1440px) {
+        flex-direction: row;
+    }
 }
 
 .form-container {
     display: flex;
+    flex: 1;
     padding: var(--spacing-400, 2rem) var(--spacing-300, 1.5rem);
     flex-direction: column;
     align-items: flex-start;

@@ -36,7 +36,7 @@ function FormDataProvider({children}) {
     'Mortgage Term': '',
     'Interest Rate': '',
     'Mortgage Type': ''
-  })
+  });
 
   const resetFrom = () => {
     setFormData({
@@ -44,44 +44,44 @@ function FormDataProvider({children}) {
       'Mortgage Term': '',
       'Interest Rate': '',
       'Mortgage Type': ''
-    })
+    });
   } 
 
   const setAmount = useCallback((e) => {
     console.log('setting amount');
-    console.log(JSON.stringify(formData))
+    console.log(JSON.stringify(formData));
     setFormData({
       ...formData,
       'Mortgage Amount': e.target.value
-    })
+    });
   }, [formData]);
 
   const setTerm = useCallback((e) => {
     setFormData({
       ...formData,
       'Mortgage Term': e.target.value
-    })
+    });
   }, [formData]);
 
   const setRate = useCallback((e) => {
     setFormData({
       ...formData,
       'Interest Rate': e.target.value
-    })
+    });
   }, [formData]);
 
   const setType = useCallback((e) => {
     setFormData({
       ...formData,
       'Mortgage Type': e.target.value
-    })
+    });
   }, [formData]);
 
   return (
     <FormDataContext.Provider value={{ formData, setAmount, setTerm, setRate, setType, resetFrom}}>
       {children}
     </FormDataContext.Provider>
-  )
+  );
 }
 
 function useFormData() {
@@ -178,13 +178,15 @@ function MortgageForm() {
   
   return (
     <form className='form-body'>
-      <legend className='sr-only'>Mortgage Form</legend>
-      <FormSection title="Mortgage Amount" setFn={setAmount} value={formData['Mortgage Amount']} />
-      <FormSection title="Mortgage Term" setFn={setTerm} value={formData['Mortgage Term']} />
-      <FormSection title="Interest Rate" setFn={setRate} value={formData['Interest Rate']} />
-      <FormSection title="Mortgage Type" setFn={setType} value={formData['Mortgage Type']} />
+      <fieldset className='sr-only-wrapper'>
+        <legend className='sr-only'>Mortgage Form</legend>
+        <FormSection title="Mortgage Amount" setFn={setAmount} value={formData['Mortgage Amount']} />
+        <FormSection title="Mortgage Term" setFn={setTerm} value={formData['Mortgage Term']} />
+        <FormSection title="Interest Rate" setFn={setRate} value={formData['Interest Rate']} />
+        <FormSection title="Mortgage Type" setFn={setType} value={formData['Mortgage Type']} />
+      </fieldset>
     </form>
-  )
+  );
 }
 
 function FormClearAllBtn() {
@@ -194,7 +196,7 @@ function FormClearAllBtn() {
     <button className="clear-all-btn" onClick={resetFrom}>
       Clear All
     </button>
-  )
+  );
 }
 
 function TitleBar() {
@@ -203,7 +205,7 @@ function TitleBar() {
       <h1>Mortgage Repayment Calculator</h1>
       <FormClearAllBtn />
     </div>
-  )
+  );
 }
 
 function FormContainer() {
@@ -212,7 +214,7 @@ function FormContainer() {
       <TitleBar />
       <MortgageForm />
     </div>
-  )
+  );
 }
 
 function App() {
@@ -222,7 +224,7 @@ function App() {
         <FormContainer />
       </main>
     </FormDataProvider>
-  )
+  );
 }
 
 export default App
