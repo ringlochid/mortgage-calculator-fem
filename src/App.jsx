@@ -192,8 +192,8 @@ function RadioIcon({ checked }) {
 }
 
 function FormSection({ title, setFn, value }) {
-  const { submitted, errors } = useFormData();
-  const hasError = submitted && errors[title];
+  const { errors } = useFormData();
+  const hasError = errors[title];
 
   if (title === 'Mortgage Type') {
     return (
@@ -273,7 +273,7 @@ function MortgageForm() {
       <FormSection title="Interest Rate" setFn={setRate} value={formData['Interest Rate']} />
       <FormSection title="Mortgage Type" setFn={setType} value={formData['Mortgage Type']} />
       <button type="submit" className="calculate-btn">
-        <img src="/assets/images/icon-calculator.svg" alt="" />
+        <img src={`${import.meta.env.BASE_URL}assets/images/icon-calculator.svg`} alt="" />
         <span>Calculate Repayments</span>
       </button>
     </form>
@@ -342,7 +342,7 @@ function calculateRepayments(principal, termYears, annualRate, mortgageType) {
 function ResultPlaceHolder() {
     return (
         <div className="result-place-holder">
-            <img src="/assets/images/illustration-empty.svg" alt="illustration-empty" />
+            <img src={`${import.meta.env.BASE_URL}assets/images/illustration-empty.svg`} alt="illustration-empty" />
             <h1>Results shown here</h1>
             <p>Complete the form and click "calculate repayments" to see what your monthly repayments would be.</p>
         </div>
