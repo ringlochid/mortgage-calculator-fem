@@ -1,30 +1,47 @@
 import './App.css'
 import { useState, createContext, useContext, useCallback } from 'react'
 
+function formatWithCommas(value) {
+  if (!value && value !== 0) return '';
+  const num = String(value).replace(/,/g, '');
+  if (isNaN(num) || num === '') return '';
+  return Number(num).toLocaleString('en-GB');
+}
+
+function stripCommas(value) {
+  return String(value).replace(/,/g, '');
+}
+
 const FIELD_CONFIG = {
   'Mortgage Amount': {
     id: 'mortgage-amount',
-    type: 'number',
+    type: 'text',  // Use text to allow comma display
+    inputMode: 'numeric',  // Mobile numeric keyboard
     min: 0,
     max: 99999999,
     prefix: '£',
     suffix: null,
+    useCommas: true,  // Format with commas
   },
   'Mortgage Term': {
     id: 'mortgage-term',
-    type: 'number',
+    type: 'text',
+    inputMode: 'numeric',
     min: 0,
     max: 50,
     prefix: null,
     suffix: 'years',
+    useCommas: false,
   },
   'Interest Rate': {
     id: 'interest-rate',
-    type: 'number',
+    type: 'text',
+    inputMode: 'decimal',  // Allow decimal input
     min: 0,
     max: 100,
     prefix: null,
     suffix: '%',
+    useCommas: false,
   },
 };
 
@@ -48,15 +65,16 @@ function FormDataProvider({children}) {
   } 
 
   const setAmount = useCallback((e) => {
-    console.log('setting amount');
     console.log(JSON.stringify(formData));
+    const rawValue = stripCommas(e.target.value);
     setFormData({
       ...formData,
-      'Mortgage Amount': e.target.value
+      'Mortgage Amount': rawValue
     });
   }, [formData]);
 
   const setTerm = useCallback((e) => {
+    console.log(JSON.stringify(formData));
     setFormData({
       ...formData,
       'Mortgage Term': e.target.value
@@ -64,6 +82,7 @@ function FormDataProvider({children}) {
   }, [formData]);
 
   const setRate = useCallback((e) => {
+    console.log(JSON.stringify(formData));
     setFormData({
       ...formData,
       'Interest Rate': e.target.value
@@ -71,6 +90,7 @@ function FormDataProvider({children}) {
   }, [formData]);
 
   const setType = useCallback((e) => {
+    console.log(JSON.stringify(formData));
     setFormData({
       ...formData,
       'Mortgage Type': e.target.value
@@ -153,6 +173,10 @@ function FormSection({ title, setFn, value }) {
     console.warn('Unknown input component');
     return null;
   }
+  
+  // Format value for display (with commas if enabled)
+  const displayValue = config.useCommas ? formatWithCommas(value) : value;
+  
   return (
     <div className="form-section">
       <label htmlFor={config.id}>{title}</label>
@@ -162,10 +186,9 @@ function FormSection({ title, setFn, value }) {
           className='mortgage-input'
           id={config.id}
           type={config.type}
-          min={config.min}
-          max={config.max}
+          inputMode={config.inputMode}
           onChange={setFn}
-          value={value}
+          value={displayValue}
         />
         {config.suffix && <div className="input-suffix">{config.suffix}</div>}
       </div>
@@ -217,11 +240,96 @@ function FormContainer() {
   );
 }
 
+// Format number with commas and 2 decimal places
+function formatCurrency(amount) {
+  return amount.toLocaleString('en-GB', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+// Calculate mortgage repayments
+function calculateRepayments(principal, termYears, annualRate, mortgageType) {
+  const monthlyRate = annualRate / 100 / 12;  // Convert annual % to monthly decimal
+  const numberOfPayments = termYears * 12;
+
+  if (mortgageType === 'Interest Only') {
+    // Interest Only: just pay interest each month, principal due at end
+    const monthlyPayment = principal * monthlyRate;
+    const totalPayment = (monthlyPayment * numberOfPayments) + principal;
+    return { monthlyPayment, totalPayment };
+  }
+
+  // Repayment (Principal + Interest): standard amortization formula
+  // M = P × [r(1+r)^n] / [(1+r)^n - 1]
+  const monthlyPayment = principal * 
+    (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
+    (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+  
+  const totalPayment = monthlyPayment * numberOfPayments;
+  
+  return { monthlyPayment, totalPayment };
+}
+
+function ResultPlaceHolder() {
+    return (
+        <div className="result-place-holder">
+            <img src="/assets/images/illustration-empty.svg" alt="illustration-empty" />
+            <h1>Results shown here</h1>
+            <p>Complete the form and click "calculate repayments" to see what your monthly repayments would be.</p>
+        </div>
+    );
+}
+
+function Result() {
+  const { formData } = useFormData();
+  
+  const principal = parseFloat(formData['Mortgage Amount']) || 0;
+  const termYears = parseFloat(formData['Mortgage Term']) || 0;
+  const annualRate = parseFloat(formData['Interest Rate']) || 0;
+  const mortgageType = formData['Mortgage Type'];
+
+  const { monthlyPayment, totalPayment } = calculateRepayments(
+    principal, termYears, annualRate, mortgageType
+  );
+
+  return (
+    <>
+      <div className="results-title-bar">
+        <h1>Your results</h1>
+        <p>Your results are shown below based on the information you provided. To adjust the results, edit the form and click "calculate repayments" again.</p>
+      </div>
+      <div className="results-detail-wrapper">
+        <div className="monthly-repayments-section">
+          <h2>Your monthly repayments</h2>
+          <p>£{formatCurrency(monthlyPayment)}</p>
+        </div>
+        <div className="result-separator"></div>
+        <div className="total-repayments-section">
+          <h2>Total you'll repay over the term</h2>
+          <p>£{formatCurrency(totalPayment)}</p>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function ResultContainer() {
+  const {formData} = useFormData();
+  const isCompleted = Object.values(formData).every(value => value !== '');
+  return (
+    <div className='results-container'>
+      {isCompleted ? <Result /> : <ResultPlaceHolder />}
+    </div>
+  )
+}
+
 function App() {
   return (
     <FormDataProvider>
       <main>
         <FormContainer />
+        <ResultContainer />
       </main>
     </FormDataProvider>
   );
