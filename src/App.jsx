@@ -238,6 +238,7 @@ function FormSection({ title, setFn, value }) {
   
   // Format value for display (with commas if enabled)
   const displayValue = config.useCommas ? formatWithCommas(value) : value;
+  const errorId = `${config.id}-error`;
   
   return (
     <div className={`form-section ${hasError ? 'form-section--error' : ''}`}>
@@ -251,10 +252,12 @@ function FormSection({ title, setFn, value }) {
           inputMode={config.inputMode}
           onChange={setFn}
           value={displayValue}
+          aria-invalid={hasError ? 'true' : 'false'}
+          aria-describedby={hasError ? errorId : undefined}
         />
         {config.suffix && <div className={`input-suffix ${hasError ? 'input-suffix--error' : ''}`}>{config.suffix}</div>}
       </div>
-      {hasError && <span className="error-text">{errors[title]}</span>}
+      {hasError && <span id={errorId} className="error-text" role="alert">{errors[title]}</span>}
     </div>
   );
 }
@@ -290,7 +293,7 @@ function FormClearAllBtn() {
 function TitleBar() {
   return (
     <div className="title-bar">
-      <h1>Mortgage Repayment Calculator</h1>
+      <h1>Mortgage Calculator</h1>
       <FormClearAllBtn />
     </div>
   );
