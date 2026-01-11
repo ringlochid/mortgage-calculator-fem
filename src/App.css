@@ -272,6 +272,13 @@ main {
     box-shadow: 0 0 0 2px rgba(216, 219, 47, 0.25);
 }
 
+/* Change prefix/suffix color on focus */
+.input-wrapper:focus-within .input-prefix,
+.input-wrapper:focus-within .input-suffix {
+    background: var(--color-lime, #D8DB2F);
+    color: var(--color-slate-900, #133041);
+}
+
 .input-suffix {
     border-radius: 0.25rem;
     display: flex;
