@@ -25,6 +25,10 @@ main {
     align-items: flex-start;
     gap: var(--spacing-300, 1.5rem);
     align-self: stretch;
+
+    @media (width >=768px) {
+        padding: var(--spacing-500, 2.5rem);
+    }
 }
 
 .title-bar {
@@ -259,4 +263,167 @@ main {
     font-style: normal;
     font-weight: 700;
     line-height: 125%;
+}
+
+.results-container {
+    display: flex;
+    padding: var(--spacing-400, 2rem) var(--spacing-300, 1.5rem);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-300, 1.5rem);
+    align-self: stretch;
+    background: var(--color-slate-900, #133041);
+}
+
+.results-title-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-200, 1rem);
+    align-self: stretch;
+}
+
+.results-title-bar h1 {
+    color: var(--color-white, #FFF);
+
+    /* desktop/text-preset-2 */
+    font-family: "Plus Jakarta Sans";
+    font-size: var(--font-size-text-preset-2, 1.5rem);
+    font-style: normal;
+    font-weight: 700;
+    line-height: 125%;
+    /* 1.875rem */
+}
+
+.results-title-bar p {
+    align-self: stretch;
+    color: var(--color-slate-300, #9ABED5);
+
+    /* desktop/text-preset-4 */
+    font-family: "Plus Jakarta Sans";
+    font-size: var(--font-size-text-preset-4, 1rem);
+    font-style: normal;
+    font-weight: 500;
+    line-height: 150%;
+    /* 1.5rem */
+}
+
+.results-detail-wrapper {
+    display: flex;
+    padding: var(--spacing-300, 1.5rem) var(--spacing-200, 1rem);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-200, 1rem);
+    align-self: stretch;
+    border-radius: 0.5rem;
+    border-top: 4px solid var(--color-lime, #D8DB2F);
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.monthly-repayments-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-100, 0.5rem);
+}
+
+.monthly-repayments-section h2 {
+    color: var(--color-slate-300, #9ABED5);
+
+    /* desktop/text-preset-4 */
+    font-family: "Plus Jakarta Sans";
+    font-size: var(--font-size-text-preset-4, 1rem);
+    font-style: normal;
+    font-weight: 500;
+    line-height: 150%;
+    /* 1.5rem */
+}
+
+.monthly-repayments-section p {
+    color: var(--color-lime, #D8DB2F);
+
+    /* mobile/text-preset-1 */
+    font-family: "Plus Jakarta Sans";
+    font-size: 2.5rem;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+}
+
+.result-separator {
+    height: 0.0625rem;
+    align-self: stretch;
+    background: rgba(154, 190, 213, 0.25);
+}
+
+.total-repayments-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-100, 0.5rem);
+}
+
+.total-repayments-section h2 {
+    color: var(--color-slate-300, #9ABED5);
+
+    /* desktop/text-preset-4 */
+    font-family: "Plus Jakarta Sans";
+    font-size: var(--font-size-text-preset-4, 1rem);
+    font-style: normal;
+    font-weight: 500;
+    line-height: 150%;
+    /* 1.5rem */
+}
+
+.total-repayments-section p {
+    color: var(--color-white, #FFF);
+
+    /* desktop/text-preset-2 */
+    font-family: "Plus Jakarta Sans";
+    font-size: var(--font-size-text-preset-2, 1.5rem);
+    font-style: normal;
+    font-weight: 700;
+    line-height: 125%;
+    /* 1.875rem */
+}
+
+.result-place-holder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-200, 1rem);
+    align-self: stretch;
+}
+
+.result-place-holder img {
+    width: 12rem;
+    height: 12rem;
+}
+
+.result-place-holder h1 {
+    color: var(--color-white, #FFF);
+    text-align: center;
+
+    /* desktop/text-preset-2 */
+    font-family: "Plus Jakarta Sans";
+    font-size: var(--font-size-text-preset-2, 1.5rem);
+    font-style: normal;
+    font-weight: 700;
+    line-height: 125%;
+    /* 1.875rem */
+}
+
+.result-place-holder p {
+    align-self: stretch;
+    color: var(--color-slate-300, #9ABED5);
+    text-align: center;
+
+    /* desktop/text-preset-4 */
+    font-family: "Plus Jakarta Sans";
+    font-size: var(--font-size-text-preset-4, 1rem);
+    font-style: normal;
+    font-weight: 500;
+    line-height: 150%;
+    /* 1.5rem */
 }
