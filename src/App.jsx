@@ -54,6 +54,25 @@ function FormDataProvider({children}) {
     'Interest Rate': '',
     'Mortgage Type': ''
   });
+  
+  const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData['Mortgage Amount']) newErrors['Mortgage Amount'] = 'This field is required';
+    if (!formData['Mortgage Term']) newErrors['Mortgage Term'] = 'This field is required';
+    if (!formData['Interest Rate']) newErrors['Interest Rate'] = 'This field is required';
+    if (!formData['Mortgage Type']) newErrors['Mortgage Type'] = 'This field is required';
+    return newErrors;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+    const newErrors = validateForm();
+    setErrors(newErrors);
+  };
 
   const resetFrom = () => {
     setFormData({
@@ -62,11 +81,35 @@ function FormDataProvider({children}) {
       'Interest Rate': '',
       'Mortgage Type': ''
     });
-  } 
+    setSubmitted(false);
+    setErrors({});
+  }; 
+
+  // Helper function to validate and set a field value
+  const validateAndSetField = (fieldName, rawValue) => {
+    const config = FIELD_CONFIG[fieldName];
+    if (!config) return true; // No config means no validation (e.g., for radio buttons)
+    
+    const numValue = Number(rawValue);
+    if (rawValue !== '' && (numValue > config.max || numValue < config.min)) {
+      setErrors(prev => ({
+        ...prev,
+        [fieldName]: `Value must be between ${config.min} and ${config.max}`
+      }));
+      return false;
+    }
+    
+    // Clear error if valid
+    setErrors(prev => ({
+      ...prev,
+      [fieldName]: ''
+    }));
+    return true;
+  };
 
   const setAmount = useCallback((e) => {
-    console.log(JSON.stringify(formData));
     const rawValue = stripCommas(e.target.value);
+    if (!validateAndSetField('Mortgage Amount', rawValue)) return;
     setFormData({
       ...formData,
       'Mortgage Amount': rawValue
@@ -74,23 +117,29 @@ function FormDataProvider({children}) {
   }, [formData]);
 
   const setTerm = useCallback((e) => {
-    console.log(JSON.stringify(formData));
+    const rawValue = e.target.value;
+    if (!validateAndSetField('Mortgage Term', rawValue)) return;
     setFormData({
       ...formData,
-      'Mortgage Term': e.target.value
+      'Mortgage Term': rawValue
     });
   }, [formData]);
 
   const setRate = useCallback((e) => {
-    console.log(JSON.stringify(formData));
+    const rawValue = e.target.value;
+    if (!validateAndSetField('Interest Rate', rawValue)) return;
     setFormData({
       ...formData,
-      'Interest Rate': e.target.value
+      'Interest Rate': rawValue
     });
   }, [formData]);
 
   const setType = useCallback((e) => {
-    console.log(JSON.stringify(formData));
+    // Clear error when a type is selected
+    setErrors(prev => ({
+      ...prev,
+      'Mortgage Type': ''
+    }));
     setFormData({
       ...formData,
       'Mortgage Type': e.target.value
@@ -98,7 +147,17 @@ function FormDataProvider({children}) {
   }, [formData]);
 
   return (
-    <FormDataContext.Provider value={{ formData, setAmount, setTerm, setRate, setType, resetFrom}}>
+    <FormDataContext.Provider value={{ 
+      formData, 
+      setAmount, 
+      setTerm, 
+      setRate, 
+      setType, 
+      resetFrom,
+      submitted,
+      errors,
+      handleSubmit
+    }}>
       {children}
     </FormDataContext.Provider>
   );
@@ -133,13 +192,15 @@ function RadioIcon({ checked }) {
 }
 
 function FormSection({ title, setFn, value }) {
+  const { submitted, errors } = useFormData();
+  const hasError = submitted && errors[title];
 
   if (title === 'Mortgage Type') {
     return (
-      <div className="form-section">
+      <div className={`form-section ${hasError ? 'form-section--error' : ''}`}>
         <span className="form-section-label">Mortgage Type</span>
-        <div className="radio-group">
-          <label className={`radio-option ${value === 'Repayment' ? 'radio-option--selected' : ''}`}>
+        <div className={`radio-group ${hasError ? 'radio-group--error' : ''}`}>
+          <label className={`radio-option ${value === 'Repayment' ? 'radio-option--selected' : ''} ${hasError ? 'radio-option--error' : ''}`}>
             <input 
               type="radio" 
               name="mortgage-type" 
@@ -151,7 +212,7 @@ function FormSection({ title, setFn, value }) {
             <RadioIcon checked={value === 'Repayment'} />
             <span className="radio-label">Repayment</span>
           </label>
-          <label className={`radio-option ${value === 'Interest Only' ? 'radio-option--selected' : ''}`}>
+          <label className={`radio-option ${value === 'Interest Only' ? 'radio-option--selected' : ''} ${hasError ? 'radio-option--error' : ''}`}>
             <input 
               type="radio" 
               name="mortgage-type" 
@@ -164,6 +225,7 @@ function FormSection({ title, setFn, value }) {
             <span className="radio-label">Interest Only</span>
           </label>
         </div>
+        {hasError && <span className="error-text">{errors[title]}</span>}
       </div>
     );
   }
@@ -178,10 +240,10 @@ function FormSection({ title, setFn, value }) {
   const displayValue = config.useCommas ? formatWithCommas(value) : value;
   
   return (
-    <div className="form-section">
+    <div className={`form-section ${hasError ? 'form-section--error' : ''}`}>
       <label htmlFor={config.id}>{title}</label>
-      <div className="input-wrapper">
-        {config.prefix && <div className="input-prefix">{config.prefix}</div>}
+      <div className={`input-wrapper ${hasError ? 'input-wrapper--error' : ''}`}>
+        {config.prefix && <div className={`input-prefix ${hasError ? 'input-prefix--error' : ''}`}>{config.prefix}</div>}
         <input
           className='mortgage-input'
           id={config.id}
@@ -190,24 +252,27 @@ function FormSection({ title, setFn, value }) {
           onChange={setFn}
           value={displayValue}
         />
-        {config.suffix && <div className="input-suffix">{config.suffix}</div>}
+        {config.suffix && <div className={`input-suffix ${hasError ? 'input-suffix--error' : ''}`}>{config.suffix}</div>}
       </div>
+      {hasError && <span className="error-text">{errors[title]}</span>}
     </div>
   );
 }
 
 function MortgageForm() {
-  const { formData, setAmount, setTerm, setRate, setType } = useFormData();
+  const { formData, setAmount, setTerm, setRate, setType, handleSubmit } = useFormData();
   
   return (
-    <form className='form-body'>
-      <fieldset className='sr-only-wrapper'>
-        <legend className='sr-only'>Mortgage Form</legend>
-        <FormSection title="Mortgage Amount" setFn={setAmount} value={formData['Mortgage Amount']} />
-        <FormSection title="Mortgage Term" setFn={setTerm} value={formData['Mortgage Term']} />
-        <FormSection title="Interest Rate" setFn={setRate} value={formData['Interest Rate']} />
-        <FormSection title="Mortgage Type" setFn={setType} value={formData['Mortgage Type']} />
-      </fieldset>
+    <form className='form-body' onSubmit={handleSubmit}>
+      <legend className='sr-only'>Mortgage Form</legend>
+      <FormSection title="Mortgage Amount" setFn={setAmount} value={formData['Mortgage Amount']} />
+      <FormSection title="Mortgage Term" setFn={setTerm} value={formData['Mortgage Term']} />
+      <FormSection title="Interest Rate" setFn={setRate} value={formData['Interest Rate']} />
+      <FormSection title="Mortgage Type" setFn={setType} value={formData['Mortgage Type']} />
+      <button type="submit" className="calculate-btn">
+        <img src="/assets/images/icon-calculator.svg" alt="" />
+        <span>Calculate Repayments</span>
+      </button>
     </form>
   );
 }
